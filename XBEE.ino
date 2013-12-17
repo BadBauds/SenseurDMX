@@ -25,7 +25,7 @@ void readXBee() {                                                 //process inco
       delyStatus = txStatus.getDeliveryStatus();
       discStatus = txStatus.getDiscoveryStatus();
       if (delyStatus == SUCCESS) {
-        Serial.println("XBee TX OK");
+       Serial.println("XBee TX OK");
       }
       else {  //the remote XBee did not receive our packet. is it powered on and configured correctly?
         Serial.println("XBee TX ERROR");
@@ -51,9 +51,9 @@ void readXBee() {                                                 //process inco
   }
 }
 
-void xbeeSend(char data[], XBeeAddress64 Addr) {
+void xbeeSend(String data, XBeeAddress64 destAddr) {
   buildPayload(data);        //build the XBee payload
-  xbeeTX(Addr, strlen(&xbeePayload[0].C));     //send it
+  xbeeTX(destAddr, strlen(&xbeePayload[0].C));     //send it
 }
 
 void xbeeTX(XBeeAddress64 destAddr, int payloadSize ) {
@@ -66,12 +66,12 @@ void xbeeTX(XBeeAddress64 destAddr, int payloadSize ) {
   xbee.send(zbTx);
 }
 
-void buildPayload(char input[]){
-  for (int i=0; i<XBEE_PAYLOAD_LEN; i++) {
-    xbeePayload[i].C = input[i];
+void buildPayload(String input){
+  xbeePayload[0].C = '#';
+  for (int i=0; i<=(input.length()+1); i++) {
+    xbeePayload[i+1].C = input.charAt(i);
   }
 }
-
 
 
 

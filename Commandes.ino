@@ -28,12 +28,24 @@ void manageCommande(char input[40], int lenght) {
     activerSenseur();
   if (strcmp(commande, cDesactiverSenseur)  == 0)
     desactiverSenseur();
+  if (strcmp(commande, cGetSenseur)  == 0)
+    getSenseurState();
+  if (strcmp(commande, cGetAll)  == 0)
+    getAll();
   if (strcmp(commande, cTempsTrain)  == 0) {
     if (lenght > 3) {
       for (int i = 3; i < lenght; i++) {
         chiffreToSet[i - 3] = input[i];
       }
       setTempsTrain(chiffreToSet);
+    }
+  }
+    if (strcmp(commande, cTempsDMX)  == 0) {
+    if (lenght > 3) {
+      for (int i = 3; i < lenght; i++) {
+        chiffreToSet[i - 3] = input[i];
+      }
+      setTempsDMX(chiffreToSet);
     }
   }
   if (strcmp(commande, cSetRange)  == 0) {
@@ -47,7 +59,6 @@ void manageCommande(char input[40], int lenght) {
 }
 
 void startDMX() {
-  xbeeSend("startDMX recu", r2Addr);
   if (dmxON == false) {
     DmxSimple.write(1, 255);
     dmxON = true;
@@ -56,66 +67,75 @@ void startDMX() {
 }
 
 void getDistanceTrain() {
-  char buffer[12];
-  xbeeSend(itoa(distanceTrain, buffer, 10), r2Addr);
+  xbeeSend(String(distanceTrain) + '\n' + '\n', r2Addr);
 }
 
 void getRunningTime() {
-  char buffer[12];
-  xbeeSend(itoa(millis() / 1000, buffer, 10), r2Addr);
+  xbeeSend(String(millis() / 1000) + '\n', r2Addr);
 }
 
 void getDistance() {
-  char buffer[12];
-  xbeeSend(itoa(distance, buffer, 10), r2Addr);
+  xbeeSend(String(distance) + '\n', r2Addr);
 }
 
 
 void setDistanceTrain(char chiffreToSet[]) {
-  char buffer[12];
   distanceTrain = atoi(chiffreToSet);
   EEPROM.write(0, highByte(distanceTrain));
   EEPROM.write(1, lowByte(distanceTrain));
-  xbeeSend(itoa(distanceTrain, buffer, 10), r2Addr);
+  xbeeSend(String(distanceTrain) + '\n', r2Addr);
 }
 
 void setDistanceTrainSenseur() {
-  char buffer[12];
   distanceTrain = distance;
   EEPROM.write(0, highByte(distanceTrain));
   EEPROM.write(1, lowByte(distanceTrain));
-  xbeeSend(itoa(distanceTrain, buffer, 10), r2Addr);
+  xbeeSend(String(distanceTrain) + '\n', r2Addr);
 }
 
 void setTempsDMX(char tempsToSet[]) {
-  char buffer[12];
   tempsDMX = atoi(tempsToSet);
   EEPROM.write(2, tempsDMX);
-  xbeeSend(itoa(tempsDMX, buffer, 10), r2Addr);
+  xbeeSend(String(tempsDMX) + '\n', r2Addr);
 }
 
 void setTempsTrain(char tempsToSet[]) {
-  char buffer[12];
   tempsTrain = atoi(tempsToSet);
   EEPROM.write(3, tempsTrain);
-  xbeeSend(itoa(tempsTrain, buffer, 10), r2Addr);
+  xbeeSend(String(tempsTrain) + '\n', r2Addr);
 }
 
 void setRange(char rangeToSet[]) {
-  char buffer[12];
   range = atoi(rangeToSet);
   EEPROM.write(4, range);
-  xbeeSend(itoa(range, buffer, 10), r2Addr);
+  xbeeSend(String(range) + '\n', r2Addr);
 }
-
 
 void activerSenseur() {
   senseur = true;
 }
 
 void desactiverSenseur() {
-  senseur = true;
+  senseur = false;
 }
+
+void getAll() {
+  String all = "gt" + String(distanceTrain) + "gd" + String(distance) + "gr" + String(millis() / 1000) + "gtt" + String(tempsTrain) + "gtd" + String(tempsDMX) + "gra" + String(range);
+  if (senseur == true)
+    all += "as" + String(senseur);
+  else
+    all += "as" + String(senseur);
+  Serial.println(all);
+  xbeeSend(all + '\n', r2Addr);
+}
+
+void getSenseurState() {
+  xbeeSend(String(senseur) + '\n', r2Addr);
+}
+
+
+
+
 
 
 
